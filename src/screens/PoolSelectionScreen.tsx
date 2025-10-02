@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { usePoolStore } from "../state/poolStore";
 import { useAuthStore } from "../state/authStore";
 
 export default function PoolSelectionScreen() {
+  const navigation = useNavigation();
   const pools = usePoolStore((s) => s.pools);
   const currentPoolId = usePoolStore((s) => s.currentPoolId);
   const setCurrentPool = usePoolStore((s) => s.setCurrentPool);
@@ -25,6 +27,19 @@ export default function PoolSelectionScreen() {
   const joinBottomSheetRef = useRef<BottomSheet>(null);
   const createSnapPoints = useMemo(() => ['60%'], []);
   const joinSnapPoints = useMemo(() => ['45%'], []);
+
+  // Navigate to main app when pool is selected
+  useEffect(() => {
+    if (currentPoolId && pools.length > 0) {
+      // Reset navigation to MainTabs
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' as never }],
+        })
+      );
+    }
+  }, [currentPoolId, pools.length, navigation]);
   
   const [poolName, setPoolName] = useState("");
   const [poolDescription, setPoolDescription] = useState("");
