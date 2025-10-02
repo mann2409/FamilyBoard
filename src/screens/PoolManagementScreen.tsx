@@ -6,8 +6,8 @@ import {
   ScrollView,
   Share,
   Alert,
-  Clipboard,
 } from "react-native";
+import * as Clipboard from "@react-native-clipboard/clipboard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
