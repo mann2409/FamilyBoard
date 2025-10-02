@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 // Screens
 import AuthScreen from "../screens/AuthScreen";
 import CalendarScreen from "../screens/CalendarScreen";
+import RequestsFeedScreen from "../screens/RequestsFeedScreen";
 import ActivityScreen from "../screens/ActivityScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import NewRequestScreen from "../screens/NewRequestScreen";
@@ -53,7 +54,9 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
-          if (route.name === "Calendar") {
+          if (route.name === "Requests") {
+            iconName = focused ? "layers" : "layers-outline";
+          } else if (route.name === "Calendar") {
             iconName = focused ? "calendar" : "calendar-outline";
           } else if (route.name === "Activity") {
             iconName = focused ? "list" : "list-outline";
@@ -81,6 +84,7 @@ function MainTabs() {
         },
       })}
     >
+      <Tab.Screen name="Requests" component={RequestsFeedScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
       <Tab.Screen name="Activity" component={ActivityScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
