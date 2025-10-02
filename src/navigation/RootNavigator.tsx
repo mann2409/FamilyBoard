@@ -7,6 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 
 // Screens
 import AuthScreen from "../screens/AuthScreen";
+import PoolSelectionScreen from "../screens/PoolSelectionScreen";
+import PoolManagementScreen from "../screens/PoolManagementScreen";
 import CalendarScreen from "../screens/CalendarScreen";
 import RequestsFeedScreen from "../screens/RequestsFeedScreen";
 import ActivityScreen from "../screens/ActivityScreen";
@@ -19,6 +21,7 @@ import { registerForPushNotificationsAsync, setupNotificationListeners } from ".
 
 // State
 import { useAuthStore } from "../state/authStore";
+import { usePoolStore } from "../state/poolStore";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -94,6 +97,8 @@ function MainTabs() {
 
 export default function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const currentPoolId = usePoolStore((s) => s.currentPoolId);
+  const pools = usePoolStore((s) => s.pools);
 
   return (
     <NavigationContainer>
@@ -116,12 +121,32 @@ export default function RootNavigator() {
             component={AuthScreen}
             options={{ headerShown: false }}
           />
+        ) : pools.length === 0 || !currentPoolId ? (
+          <Stack.Screen
+            name="PoolSelection"
+            component={PoolSelectionScreen}
+            options={{ headerShown: false }}
+          />
         ) : (
           <>
             <Stack.Screen
               name="MainTabs"
               component={MainTabs}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="PoolSelection"
+              component={PoolSelectionScreen}
+              options={{
+                title: "My Pools",
+              }}
+            />
+            <Stack.Screen
+              name="PoolManagement"
+              component={PoolManagementScreen}
+              options={{
+                title: "Pool Management",
+              }}
             />
             <Stack.Screen
               name="NewRequest"

@@ -13,10 +13,12 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRequestsStore } from "../state/requestsStore";
 import { useAuthStore } from "../state/authStore";
+import { usePoolStore } from "../state/poolStore";
 import { FamilyRequest, RequestType, RequestStatus } from "../types/family";
 import RequestCard from "../components/RequestCard";
 import FilterSortBar, { FilterOptions } from "../components/FilterSortBar";
 import FloatingActionButton from "../components/FloatingActionButton";
+import PoolSwitcher from "../components/PoolSwitcher";
 
 type RootStackParamList = {
   RequestDetail: { requestId: string };
@@ -29,9 +31,16 @@ type TabType = "all" | "myJobs" | "posted" | "completed";
 
 export default function RequestsFeedScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const requests = useRequestsStore((s) => s.requests);
+  const allRequests = useRequestsStore((s) => s.requests);
+  const getRequestsByPool = useRequestsStore((s) => s.getRequestsByPool);
   const claimRequest = useRequestsStore((s) => s.claimRequest);
   const currentUser = useAuthStore((s) => s.currentUser);
+  const currentPoolId = usePoolStore((s) => s.currentPoolId);
+  const getCurrentPool = usePoolStore((s) => s.getCurrentPool);
+
+  // Filter requests by current pool
+  const requests = currentPoolId ? getRequestsByPool(currentPoolId) : allRequests;
+  const currentPool = getCurrentPool();
 
   const [activeTab, setActiveTab] = useState<TabType>("all");
   const [refreshing, setRefreshing] = useState(false);
@@ -130,9 +139,12 @@ export default function RequestsFeedScreen() {
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       {/* Header */}
       <View className="bg-white px-4 py-3 border-b" style={{ borderColor: "#E5E7EB" }}>
-        <Text className="text-2xl font-bold text-gray-800 mb-3">
-          Requests Feed
-        </Text>
+        <View className="flex-row items-center justify-between mb-3">
+          <Text className="text-2xl font-bold text-gray-800">
+            Requests Feed
+          </Text>
+          {currentPool && <PoolSwitcher />}
+        </View>
 
         {/* Search Bar */}
         <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3 mb-3">

@@ -15,6 +15,7 @@ interface RequestsState {
   addNotification: (notification: Notification) => void;
   markNotificationAsRead: (notificationId: string) => void;
   updateRequestStatus: (requestId: string, status: RequestStatus) => void;
+  getRequestsByPool: (poolId: string) => FamilyRequest[];
 }
 
 export const useRequestsStore = create<RequestsState>()(
@@ -157,6 +158,10 @@ export const useRequestsStore = create<RequestsState>()(
             notif.id === notificationId ? { ...notif, read: true } : notif
           ),
         }));
+      },
+
+      getRequestsByPool: (poolId: string) => {
+        return get().requests.filter((req) => req.poolId === poolId);
       },
     }),
     {

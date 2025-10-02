@@ -2,15 +2,29 @@ import React from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { useAuthStore } from "../state/authStore";
 import { useRequestsStore } from "../state/requestsStore";
+import { usePoolStore } from "../state/poolStore";
+import PoolSwitcher from "../components/PoolSwitcher";
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const currentUser = useAuthStore((s) => s.currentUser);
   const familyMembers = useAuthStore((s) => s.familyMembers);
   const logout = useAuthStore((s) => s.logout);
-  const requests = useRequestsStore((s) => s.requests);
+  const allRequests = useRequestsStore((s) => s.requests);
+  const getRequestsByPool = useRequestsStore((s) => s.getRequestsByPool);
   const notifications = useRequestsStore((s) => s.notifications);
+  const currentPoolId = usePoolStore((s) => s.currentPoolId);
+  const getCurrentPool = usePoolStore((s) => s.getCurrentPool);
+  const getPoolMembers = usePoolStore((s) => s.getPoolMembers);
+  const pools = usePoolStore((s) => s.pools);
+
+  // Filter requests by current pool
+  const requests = currentPoolId ? getRequestsByPool(currentPoolId) : allRequests;
+  const currentPool = getCurrentPool();
+  const poolMembers = currentPool ? getPoolMembers(currentPool.id) : [];
 
   const myPostedRequests = requests.filter((r) => r.postedBy.id === currentUser?.id);
   const myClaimedRequests = requests.filter((r) => r.claimedBy?.id === currentUser?.id);
@@ -20,9 +34,12 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       <ScrollView className="flex-1">
         <View className="px-4 py-6">
-          <Text className="text-2xl font-bold text-gray-800 mb-6">
-            Profile
-          </Text>
+          <View className="flex-row items-center justify-between mb-6">
+            <Text className="text-2xl font-bold text-gray-800">
+              Profile
+            </Text>
+            {currentPool && <PoolSwitcher />}
+          </View>
 
           {/* User Info Card */}
           <View className="bg-white rounded-xl p-6 mb-6">
@@ -63,41 +80,91 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* Family Members */}
+          {/* Pool Info */}
+          {currentPool && (
+            <View className="bg-white rounded-xl p-4 mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-lg font-semibold text-gray-800">
+                  {currentPool.name}
+                </Text>
+                <Pressable
+                  onPress={() => (navigation as any).navigate("PoolManagement")}
+                  className="px-3 py-1.5 bg-blue-100 rounded-lg active:bg-blue-200"
+                >
+                  <Text className="text-sm font-semibold text-blue-600">Manage</Text>
+                </Pressable>
+              </View>
+
+              {currentPool.description && (
+                <Text className="text-sm text-gray-600 mb-3">
+                  {currentPool.description}
+                </Text>
+              )}
+
+              <View className="flex-row items-center">
+                <Ionicons name="people" size={16} color="#6B7280" />
+                <Text className="text-sm text-gray-600 ml-2">
+                  {poolMembers.length} members in this pool
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {/* My Pools */}
           <View className="bg-white rounded-xl p-4 mb-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-lg font-semibold text-gray-800">
-                Family Members
+                My Pools
               </Text>
-              <View className="bg-blue-100 px-2 py-1 rounded-full">
-                <Text className="text-sm font-semibold text-blue-600">
-                  {familyMembers.length}
+              <View className="bg-purple-100 px-2 py-1 rounded-full">
+                <Text className="text-sm font-semibold text-purple-600">
+                  {pools.length}
                 </Text>
               </View>
             </View>
 
-            {familyMembers.map((member, index) => (
+            {pools.slice(0, 3).map((pool, index) => (
               <View
-                key={member.id}
-                className={`flex-row items-center py-3 ${
-                  index < familyMembers.length - 1 ? "border-b" : ""
+                key={pool.id}
+                className={`flex-row items-center py-2 ${
+                  index < Math.min(pools.length, 3) - 1 ? "border-b" : ""
                 }`}
                 style={{ borderColor: "#E5E7EB" }}
               >
-                <View className="w-10 h-10 bg-gray-200 rounded-full items-center justify-center mr-3">
-                  <Text className="text-lg font-semibold text-gray-600">
-                    {member.name.charAt(0).toUpperCase()}
-                  </Text>
+                <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-3">
+                  <Ionicons name="people" size={20} color="#8B5CF6" />
                 </View>
                 <View className="flex-1">
                   <Text className="text-base font-medium text-gray-800">
-                    {member.name}
-                    {member.id === currentUser?.id && " (You)"}
+                    {pool.name}
                   </Text>
-                  <Text className="text-sm text-gray-500">{member.email}</Text>
+                  <Text className="text-sm text-gray-500">
+                    {pool.memberIds.length} members
+                  </Text>
                 </View>
+                {currentPoolId === pool.id && (
+                  <View className="bg-blue-500 w-6 h-6 rounded-full items-center justify-center">
+                    <Ionicons name="checkmark" size={14} color="white" />
+                  </View>
+                )}
               </View>
             ))}
+
+            {pools.length > 3 && (
+              <Text className="text-sm text-gray-500 text-center mt-2">
+                +{pools.length - 3} more pools
+              </Text>
+            )}
+
+            <Pressable
+              onPress={() => (navigation as any).navigate("PoolSelection")}
+              className="mt-3 py-2 border-t active:opacity-70"
+              style={{ borderColor: "#E5E7EB" }}
+            >
+              <Text className="text-sm text-blue-600 font-semibold text-center">
+                View All Pools
+              </Text>
+            </Pressable>
           </View>
 
           {/* Actions */}
