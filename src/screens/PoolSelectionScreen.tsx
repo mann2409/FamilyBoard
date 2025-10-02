@@ -1,17 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
   View,
   Text,
   Pressable,
   ScrollView,
   TextInput,
-  Modal,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { usePoolStore } from "../state/poolStore";
 import { useAuthStore } from "../state/authStore";
 
@@ -23,11 +21,26 @@ export default function PoolSelectionScreen() {
   const joinPool = usePoolStore((s) => s.joinPool);
   const currentUser = useAuthStore((s) => s.currentUser);
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
+  const createBottomSheetRef = useRef<BottomSheet>(null);
+  const joinBottomSheetRef = useRef<BottomSheet>(null);
+  const createSnapPoints = useMemo(() => ['60%'], []);
+  const joinSnapPoints = useMemo(() => ['45%'], []);
+  
   const [poolName, setPoolName] = useState("");
   const [poolDescription, setPoolDescription] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+
+  const renderBackdrop = React.useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
 
   const handleCreatePool = () => {
     if (!poolName.trim() || !currentUser) {
@@ -45,7 +58,7 @@ export default function PoolSelectionScreen() {
 
     setPoolName("");
     setPoolDescription("");
-    setShowCreateModal(false);
+    createBottomSheetRef.current?.close();
     Alert.alert("Success", "Pool created successfully!");
   };
 
@@ -64,7 +77,7 @@ export default function PoolSelectionScreen() {
 
     if (pool) {
       setInviteCode("");
-      setShowJoinModal(false);
+      joinBottomSheetRef.current?.close();
       Alert.alert("Success", `Joined ${pool.name} successfully!`);
     } else {
       Alert.alert("Error", "Invalid invite code. Please check and try again.");
@@ -88,7 +101,7 @@ export default function PoolSelectionScreen() {
           </Text>
 
           <Pressable
-            onPress={() => setShowCreateModal(true)}
+            onPress={() => createBottomSheetRef.current?.expand()}
             className="w-full bg-blue-500 py-4 rounded-2xl items-center mb-4 active:bg-blue-600"
           >
             <View className="flex-row items-center">
@@ -100,7 +113,7 @@ export default function PoolSelectionScreen() {
           </Pressable>
 
           <Pressable
-            onPress={() => setShowJoinModal(true)}
+            onPress={() => joinBottomSheetRef.current?.expand()}
             className="w-full bg-white border-2 border-blue-500 py-4 rounded-2xl items-center active:bg-blue-50"
           >
             <View className="flex-row items-center">
@@ -112,8 +125,81 @@ export default function PoolSelectionScreen() {
           </Pressable>
         </View>
 
-        {renderCreateModal()}
-        {renderJoinModal()}
+        {/* Create Pool Bottom Sheet */}
+        <BottomSheet
+          ref={createBottomSheetRef}
+          index={-1}
+          snapPoints={createSnapPoints}
+          enablePanDownToClose
+          backdropComponent={renderBackdrop}
+        >
+          <BottomSheetView style={{ flex: 1, padding: 24 }}>
+            <Text className="text-2xl font-bold text-gray-800 mb-6">Create Pool</Text>
+            
+            <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
+            <TextInput
+              className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
+              placeholder="e.g., Smith Family, Book Club"
+              value={poolName}
+              onChangeText={setPoolName}
+              returnKeyType="next"
+            />
+
+            <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
+            <TextInput
+              className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
+              placeholder="Tell members what this pool is for..."
+              value={poolDescription}
+              onChangeText={setPoolDescription}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              style={{ height: 80 }}
+              returnKeyType="done"
+            />
+
+            <Pressable
+              onPress={handleCreatePool}
+              className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+            >
+              <Text className="text-white text-lg font-bold">Create Pool</Text>
+            </Pressable>
+          </BottomSheetView>
+        </BottomSheet>
+
+        {/* Join Pool Bottom Sheet */}
+        <BottomSheet
+          ref={joinBottomSheetRef}
+          index={-1}
+          snapPoints={joinSnapPoints}
+          enablePanDownToClose
+          backdropComponent={renderBackdrop}
+        >
+          <BottomSheetView style={{ flex: 1, padding: 24 }}>
+            <Text className="text-2xl font-bold text-gray-800 mb-6">Join Pool</Text>
+            
+            <Text className="text-sm font-semibold text-gray-700 mb-2">Invite Code *</Text>
+            <TextInput
+              className="bg-gray-100 rounded-xl px-4 py-3 mb-2 text-base text-center font-mono"
+              placeholder="XXXX-XXXX"
+              value={inviteCode}
+              onChangeText={(text) => setInviteCode(text.toUpperCase())}
+              autoCapitalize="characters"
+              maxLength={9}
+              returnKeyType="done"
+            />
+            <Text className="text-xs text-gray-500 mb-6 text-center">
+              Ask a pool admin for the invite code
+            </Text>
+
+            <Pressable
+              onPress={handleJoinPool}
+              className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+            >
+              <Text className="text-white text-lg font-bold">Join Pool</Text>
+            </Pressable>
+          </BottomSheetView>
+        </BottomSheet>
       </SafeAreaView>
     );
   }
@@ -122,134 +208,6 @@ export default function PoolSelectionScreen() {
   const handleSelectPool = (poolId: string) => {
     setCurrentPool(poolId);
   };
-
-  function renderCreateModal() {
-    const insets = useSafeAreaInsets();
-    
-    return (
-      <Modal
-        visible={showCreateModal}
-        animationType="slide"
-        presentationStyle="overFullScreen"
-        transparent={true}
-        onRequestClose={() => setShowCreateModal(false)}
-      >
-        <View className="flex-1">
-          <Pressable 
-            className="flex-1 bg-black/50" 
-            onPress={() => setShowCreateModal(false)}
-          />
-          <View 
-            className="bg-white rounded-t-3xl"
-            style={{ paddingBottom: Math.max(insets.bottom, 20) }}
-          >
-            {/* Header */}
-            <View className="p-6 pb-4 border-b" style={{ borderColor: "#E5E7EB" }}>
-              <View className="flex-row items-center justify-between">
-                <Text className="text-2xl font-bold text-gray-800">Create Pool</Text>
-                <Pressable onPress={() => setShowCreateModal(false)}>
-                  <Ionicons name="close" size={28} color="#374151" />
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Form */}
-            <View className="px-6 pt-6 pb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
-              <TextInput
-                className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
-                placeholder="e.g., Smith Family, Book Club"
-                value={poolName}
-                onChangeText={setPoolName}
-                returnKeyType="next"
-              />
-
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
-              <TextInput
-                className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
-                placeholder="Tell members what this pool is for..."
-                value={poolDescription}
-                onChangeText={setPoolDescription}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                style={{ height: 80 }}
-                returnKeyType="done"
-              />
-
-              {/* Button */}
-              <Pressable
-                onPress={handleCreatePool}
-                className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
-              >
-                <Text className="text-white text-lg font-bold">Create Pool</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
-  }
-
-  function renderJoinModal() {
-    const insets = useSafeAreaInsets();
-    
-    return (
-      <Modal
-        visible={showJoinModal}
-        animationType="slide"
-        presentationStyle="overFullScreen"
-        transparent={true}
-        onRequestClose={() => setShowJoinModal(false)}
-      >
-        <View className="flex-1">
-          <Pressable 
-            className="flex-1 bg-black/50" 
-            onPress={() => setShowJoinModal(false)}
-          />
-          <View 
-            className="bg-white rounded-t-3xl"
-            style={{ paddingBottom: Math.max(insets.bottom, 20) }}
-          >
-            {/* Header */}
-            <View className="p-6 pb-4 border-b" style={{ borderColor: "#E5E7EB" }}>
-              <View className="flex-row items-center justify-between">
-                <Text className="text-2xl font-bold text-gray-800">Join Pool</Text>
-                <Pressable onPress={() => setShowJoinModal(false)}>
-                  <Ionicons name="close" size={28} color="#374151" />
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Form */}
-            <View className="px-6 pt-6 pb-4">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">Invite Code *</Text>
-              <TextInput
-                className="bg-gray-100 rounded-xl px-4 py-3 mb-2 text-base text-center font-mono"
-                placeholder="XXXX-XXXX"
-                value={inviteCode}
-                onChangeText={(text) => setInviteCode(text.toUpperCase())}
-                autoCapitalize="characters"
-                maxLength={9}
-                returnKeyType="done"
-              />
-              <Text className="text-xs text-gray-500 mb-6 text-center">
-                Ask a pool admin for the invite code
-              </Text>
-
-              {/* Button */}
-              <Pressable
-                onPress={handleJoinPool}
-                className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
-              >
-                <Text className="text-white text-lg font-bold">Join Pool</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
@@ -308,7 +266,7 @@ export default function PoolSelectionScreen() {
           {/* Action Buttons */}
           <View className="mt-4">
             <Pressable
-              onPress={() => setShowCreateModal(true)}
+              onPress={() => createBottomSheetRef.current?.expand()}
               className="w-full bg-blue-500 py-4 rounded-xl items-center mb-3 active:bg-blue-600"
             >
               <View className="flex-row items-center">
@@ -320,7 +278,7 @@ export default function PoolSelectionScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => setShowJoinModal(true)}
+              onPress={() => joinBottomSheetRef.current?.expand()}
               className="w-full bg-white border border-blue-500 py-4 rounded-xl items-center active:bg-blue-50"
             >
               <View className="flex-row items-center">
@@ -334,8 +292,81 @@ export default function PoolSelectionScreen() {
         </View>
       </ScrollView>
 
-      {renderCreateModal()}
-      {renderJoinModal()}
+      {/* Create Pool Bottom Sheet */}
+      <BottomSheet
+        ref={createBottomSheetRef}
+        index={-1}
+        snapPoints={createSnapPoints}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+      >
+        <BottomSheetView style={{ flex: 1, padding: 24 }}>
+          <Text className="text-2xl font-bold text-gray-800 mb-6">Create Pool</Text>
+          
+          <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
+          <TextInput
+            className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
+            placeholder="e.g., Smith Family, Book Club"
+            value={poolName}
+            onChangeText={setPoolName}
+            returnKeyType="next"
+          />
+
+          <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
+          <TextInput
+            className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
+            placeholder="Tell members what this pool is for..."
+            value={poolDescription}
+            onChangeText={setPoolDescription}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+            style={{ height: 80 }}
+            returnKeyType="done"
+          />
+
+          <Pressable
+            onPress={handleCreatePool}
+            className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+          >
+            <Text className="text-white text-lg font-bold">Create Pool</Text>
+          </Pressable>
+        </BottomSheetView>
+      </BottomSheet>
+
+      {/* Join Pool Bottom Sheet */}
+      <BottomSheet
+        ref={joinBottomSheetRef}
+        index={-1}
+        snapPoints={joinSnapPoints}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+      >
+        <BottomSheetView style={{ flex: 1, padding: 24 }}>
+          <Text className="text-2xl font-bold text-gray-800 mb-6">Join Pool</Text>
+          
+          <Text className="text-sm font-semibold text-gray-700 mb-2">Invite Code *</Text>
+          <TextInput
+            className="bg-gray-100 rounded-xl px-4 py-3 mb-2 text-base text-center font-mono"
+            placeholder="XXXX-XXXX"
+            value={inviteCode}
+            onChangeText={(text) => setInviteCode(text.toUpperCase())}
+            autoCapitalize="characters"
+            maxLength={9}
+            returnKeyType="done"
+          />
+          <Text className="text-xs text-gray-500 mb-6 text-center">
+            Ask a pool admin for the invite code
+          </Text>
+
+          <Pressable
+            onPress={handleJoinPool}
+            className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+          >
+            <Text className="text-white text-lg font-bold">Join Pool</Text>
+          </Pressable>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
