@@ -130,39 +130,44 @@ export default function PoolSelectionScreen() {
         onRequestClose={() => setShowCreateModal(false)}
       >
         <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-6">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-2xl font-bold text-gray-800">Create Pool</Text>
-              <Pressable onPress={() => setShowCreateModal(false)}>
-                <Ionicons name="close" size={28} color="#374151" />
-              </Pressable>
-            </View>
+          <View className="bg-white rounded-t-3xl pb-8" style={{ maxHeight: "85%" }}>
+            <ScrollView bounces={false}>
+              <View className="p-6">
+                <View className="flex-row items-center justify-between mb-6">
+                  <Text className="text-2xl font-bold text-gray-800">Create Pool</Text>
+                  <Pressable onPress={() => setShowCreateModal(false)}>
+                    <Ionicons name="close" size={28} color="#374151" />
+                  </Pressable>
+                </View>
 
-            <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
-            <TextInput
-              className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
-              placeholder="e.g., Smith Family, Book Club"
-              value={poolName}
-              onChangeText={setPoolName}
-            />
+                <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
+                <TextInput
+                  className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
+                  placeholder="e.g., Smith Family, Book Club"
+                  value={poolName}
+                  onChangeText={setPoolName}
+                />
 
-            <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
-            <TextInput
-              className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
-              placeholder="Tell members what this pool is for..."
-              value={poolDescription}
-              onChangeText={setPoolDescription}
-              multiline
-              numberOfLines={3}
-              textAlignVertical="top"
-            />
+                <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
+                <TextInput
+                  className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
+                  placeholder="Tell members what this pool is for..."
+                  value={poolDescription}
+                  onChangeText={setPoolDescription}
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  style={{ minHeight: 80 }}
+                />
 
-            <Pressable
-              onPress={handleCreatePool}
-              className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
-            >
-              <Text className="text-white text-lg font-bold">Create Pool</Text>
-            </Pressable>
+                <Pressable
+                  onPress={handleCreatePool}
+                  className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+                >
+                  <Text className="text-white text-lg font-bold">Create Pool</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -178,33 +183,37 @@ export default function PoolSelectionScreen() {
         onRequestClose={() => setShowJoinModal(false)}
       >
         <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-6">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-2xl font-bold text-gray-800">Join Pool</Text>
-              <Pressable onPress={() => setShowJoinModal(false)}>
-                <Ionicons name="close" size={28} color="#374151" />
-              </Pressable>
-            </View>
+          <View className="bg-white rounded-t-3xl pb-8" style={{ maxHeight: "70%" }}>
+            <ScrollView bounces={false}>
+              <View className="p-6">
+                <View className="flex-row items-center justify-between mb-6">
+                  <Text className="text-2xl font-bold text-gray-800">Join Pool</Text>
+                  <Pressable onPress={() => setShowJoinModal(false)}>
+                    <Ionicons name="close" size={28} color="#374151" />
+                  </Pressable>
+                </View>
 
-            <Text className="text-sm font-semibold text-gray-700 mb-2">Invite Code *</Text>
-            <TextInput
-              className="bg-gray-100 rounded-xl px-4 py-3 mb-2 text-base text-center font-mono"
-              placeholder="XXXX-XXXX"
-              value={inviteCode}
-              onChangeText={(text) => setInviteCode(text.toUpperCase())}
-              autoCapitalize="characters"
-              maxLength={9}
-            />
-            <Text className="text-xs text-gray-500 mb-6 text-center">
-              Ask a pool admin for the invite code
-            </Text>
+                <Text className="text-sm font-semibold text-gray-700 mb-2">Invite Code *</Text>
+                <TextInput
+                  className="bg-gray-100 rounded-xl px-4 py-3 mb-2 text-base text-center font-mono"
+                  placeholder="XXXX-XXXX"
+                  value={inviteCode}
+                  onChangeText={(text) => setInviteCode(text.toUpperCase())}
+                  autoCapitalize="characters"
+                  maxLength={9}
+                />
+                <Text className="text-xs text-gray-500 mb-6 text-center">
+                  Ask a pool admin for the invite code
+                </Text>
 
-            <Pressable
-              onPress={handleJoinPool}
-              className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600 mb-3"
-            >
-              <Text className="text-white text-lg font-bold">Join Pool</Text>
-            </Pressable>
+                <Pressable
+                  onPress={handleJoinPool}
+                  className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600 mb-3"
+                >
+                  <Text className="text-white text-lg font-bold">Join Pool</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
