@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -7,6 +7,7 @@ import { useAuthStore } from "../state/authStore";
 import { useRequestsStore } from "../state/requestsStore";
 import { usePoolStore } from "../state/poolStore";
 import PoolSwitcher from "../components/PoolSwitcher";
+import GamificationStats from "../components/GamificationStats";
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -20,6 +21,26 @@ export default function ProfileScreen() {
   const getCurrentPool = usePoolStore((s) => s.getCurrentPool);
   const getPoolMembers = usePoolStore((s) => s.getPoolMembers);
   const pools = usePoolStore((s) => s.pools);
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: () => {
+            logout();
+          },
+        },
+      ]
+    );
+  };
 
   // Filter requests by current pool
   const requests = currentPoolId ? getRequestsByPool(currentPoolId) : allRequests;
@@ -79,6 +100,26 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
+
+          {/* Gamification Stats */}
+          <GamificationStats />
+
+          {/* Leaderboard Button */}
+          <Pressable
+            onPress={() => (navigation as any).navigate("Leaderboard")}
+            className="rounded-xl p-4 mb-6 flex-row items-center justify-between active:opacity-80"
+            style={{ backgroundColor: "#F59E0B" }}
+          >
+            <View className="flex-row items-center">
+              <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
+                <Ionicons name="trophy" size={24} color="white" />
+              </View>
+              <Text className="text-lg font-bold text-white ml-3">
+                View Leaderboard
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="white" />
+          </Pressable>
 
           {/* Pool Info */}
           {currentPool && (
@@ -208,13 +249,24 @@ export default function ProfileScreen() {
 
           {/* Logout Button */}
           <Pressable
-            onPress={logout}
-            className="bg-red-500 py-4 rounded-xl items-center active:bg-red-600 mb-6"
+            onPress={handleLogout}
+            className="flex-row items-center justify-center bg-red-500 py-4 rounded-xl active:bg-red-600 mb-6"
           >
-            <Text className="text-white text-base font-semibold">
+            <Ionicons name="log-out-outline" size={20} color="white" />
+            <Text className="text-white text-base font-semibold ml-2">
               Log Out
             </Text>
           </Pressable>
+          
+          {/* App Info */}
+          <View className="items-center pb-4">
+            <Text className="text-xs text-gray-400">
+              FamilyBoard v1.0.0
+            </Text>
+            <Text className="text-xs text-gray-400 mt-1">
+              Your data is stored locally on this device
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

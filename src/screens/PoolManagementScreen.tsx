@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,13 @@ import {
   ScrollView,
   Share,
   Alert,
+  TextInput,
 } from "react-native";
-import * as Clipboard from "@react-native-clipboard/clipboard";
+import Clipboard from "@react-native-clipboard/clipboard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import BottomSheet, { BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { usePoolStore } from "../state/poolStore";
 import { useAuthStore } from "../state/authStore";
 import { format } from "date-fns";
@@ -23,11 +25,30 @@ export default function PoolManagementScreen() {
   const removeMemberFromPool = usePoolStore((s) => s.removeMemberFromPool);
   const regenerateInviteCode = usePoolStore((s) => s.regenerateInviteCode);
   const leavePool = usePoolStore((s) => s.leavePool);
+  const createPool = usePoolStore((s) => s.createPool);
+  const setCurrentPool = usePoolStore((s) => s.setCurrentPool);
   const currentUser = useAuthStore((s) => s.currentUser);
+
+  const createBottomSheetRef = useRef<BottomSheet>(null);
+  const createSnapPoints = useMemo(() => ['60%'], []);
+  const [newPoolName, setNewPoolName] = useState("");
+  const [newPoolDescription, setNewPoolDescription] = useState("");
 
   const currentPool = getCurrentPool();
   const members = currentPool ? getPoolMembers(currentPool.id) : [];
   const isAdmin = currentPool && currentUser ? isUserPoolAdmin(currentPool.id, currentUser.id) : false;
+
+  const renderBackdrop = React.useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
 
   if (!currentPool || !currentUser) {
     return null;
@@ -108,6 +129,27 @@ export default function PoolManagementScreen() {
         },
       ]
     );
+  };
+
+  const handleCreateNewPool = () => {
+    if (!newPoolName.trim() || !currentUser) {
+      Alert.alert("Error", "Please enter a pool name");
+      return;
+    }
+
+    const newPool = createPool(
+      newPoolName.trim(),
+      newPoolDescription.trim(),
+      currentUser.id,
+      currentUser.name,
+      currentUser.email
+    );
+
+    setNewPoolName("");
+    setNewPoolDescription("");
+    createBottomSheetRef.current?.close();
+    setCurrentPool(newPool.id);
+    Alert.alert("Success", `"${newPool.name}" created successfully!`);
   };
 
   return (
@@ -241,6 +283,18 @@ export default function PoolManagementScreen() {
           {/* Actions */}
           <View className="bg-white rounded-2xl overflow-hidden mb-6">
             <Pressable
+              onPress={() => createBottomSheetRef.current?.expand()}
+              className="flex-row items-center px-4 py-4 border-b active:bg-gray-50"
+              style={{ borderColor: "#E5E7EB" }}
+            >
+              <Ionicons name="add-circle" size={24} color="#3B82F6" />
+              <Text className="flex-1 text-base text-gray-800 ml-3">
+                Create New Pool
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            </Pressable>
+
+            <Pressable
               onPress={() => (navigation as any).navigate("PoolSelection")}
               className="flex-row items-center px-4 py-4 border-b active:bg-gray-50"
               style={{ borderColor: "#E5E7EB" }}
@@ -267,6 +321,48 @@ export default function PoolManagementScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Create Pool Bottom Sheet */}
+      <BottomSheet
+        ref={createBottomSheetRef}
+        index={-1}
+        snapPoints={createSnapPoints}
+        enablePanDownToClose
+        backdropComponent={renderBackdrop}
+      >
+        <BottomSheetView style={{ flex: 1, padding: 24 }}>
+          <Text className="text-2xl font-bold text-gray-800 mb-6">Create New Pool</Text>
+          
+          <Text className="text-sm font-semibold text-gray-700 mb-2">Pool Name *</Text>
+          <TextInput
+            className="bg-gray-100 rounded-xl px-4 py-3 mb-4 text-base"
+            placeholder="e.g., Smith Family, Book Club"
+            value={newPoolName}
+            onChangeText={setNewPoolName}
+            returnKeyType="next"
+          />
+
+          <Text className="text-sm font-semibold text-gray-700 mb-2">Description (Optional)</Text>
+          <TextInput
+            className="bg-gray-100 rounded-xl px-4 py-3 mb-6 text-base"
+            placeholder="Tell members what this pool is for..."
+            value={newPoolDescription}
+            onChangeText={setNewPoolDescription}
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+            style={{ height: 80 }}
+            returnKeyType="done"
+          />
+
+          <Pressable
+            onPress={handleCreateNewPool}
+            className="bg-blue-500 py-4 rounded-xl items-center active:bg-blue-600"
+          >
+            <Text className="text-white text-lg font-bold">Create Pool</Text>
+          </Pressable>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   );
 }

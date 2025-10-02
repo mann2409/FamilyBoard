@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Pool, PoolMember } from "../types/pool";
 
 interface PoolState {
@@ -30,10 +32,12 @@ const generateInviteCode = (): string => {
   return code.match(/.{1,4}/g)?.join("-") || code; // Format as XXXX-XXXX
 };
 
-export const usePoolStore = create<PoolState>((set, get) => ({
-  pools: [],
-  currentPoolId: null,
-  poolMembers: {},
+export const usePoolStore = create<PoolState>()(
+  persist(
+    (set, get) => ({
+      pools: [],
+      currentPoolId: null,
+      poolMembers: {},
 
   setCurrentPool: (poolId: string) => {
     set({ currentPoolId: poolId });
@@ -208,5 +212,11 @@ export const usePoolStore = create<PoolState>((set, get) => ({
       };
     });
   },
-}));
+    }),
+    {
+      name: "pool-storage",
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+);
 

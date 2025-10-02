@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, CommonActions } from "@react-navigation/native";
@@ -102,38 +103,56 @@ export default function PoolSelectionScreen() {
   // If user has no pools, show welcome screen
   if (pools.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-32 h-32 bg-blue-500 rounded-full items-center justify-center mb-8">
-            <Ionicons name="people" size={64} color="white" />
-          </View>
+      <LinearGradient
+        colors={['#667eea', '#764ba2', '#f093fb']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="flex-1"
+      >
+        <SafeAreaView className="flex-1">
+          <View className="flex-1 items-center justify-center px-6">
+            <View className="w-32 h-32 bg-white/20 rounded-full items-center justify-center mb-8" style={{ borderWidth: 4, borderColor: 'white' }}>
+              <Ionicons name="people" size={64} color="white" />
+            </View>
 
-          <Text className="text-3xl font-bold text-gray-800 mb-3 text-center">
-            Welcome to FamilyBoard
-          </Text>
-          <Text className="text-lg text-gray-600 text-center mb-12">
-            Get started by creating a pool for your family or join an existing one
-          </Text>
-
-          <Pressable
-            onPress={() => createBottomSheetRef.current?.expand()}
-            className="w-full bg-blue-500 py-4 rounded-2xl items-center mb-4 active:bg-blue-600"
-          >
-            <View className="flex-row items-center">
-              <Ionicons name="add-circle" size={24} color="white" />
-              <Text className="text-white text-lg font-bold ml-2">
-                Create New Pool
+            <Text className="text-3xl font-bold text-white mb-3 text-center">
+              Create or Join a Pool
+            </Text>
+            <Text className="text-base text-white/90 text-center mb-4 px-4">
+              Pools are shared spaces where you coordinate tasks with your group
+            </Text>
+            <View className="bg-white/20 px-4 py-3 rounded-xl mb-12">
+              <Text className="text-sm text-white font-medium text-center">
+                💡 You can join multiple pools and switch between them anytime
               </Text>
             </View>
-          </Pressable>
+
+          <LinearGradient
+            colors={['#FFFFFF', '#F3F4F6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            className="w-full rounded-2xl mb-4"
+          >
+            <Pressable
+              onPress={() => createBottomSheetRef.current?.expand()}
+              className="w-full py-4 items-center active:opacity-80"
+            >
+              <View className="flex-row items-center">
+                <Ionicons name="add-circle" size={24} color="#667eea" />
+                <Text className="text-gray-800 text-lg font-bold ml-2">
+                  Create New Pool
+                </Text>
+              </View>
+            </Pressable>
+          </LinearGradient>
 
           <Pressable
             onPress={() => joinBottomSheetRef.current?.expand()}
-            className="w-full bg-white border-2 border-blue-500 py-4 rounded-2xl items-center active:bg-blue-50"
+            className="w-full bg-white/20 border-2 border-white py-4 rounded-2xl items-center active:bg-white/30"
           >
             <View className="flex-row items-center">
-              <Ionicons name="enter" size={24} color="#3B82F6" />
-              <Text className="text-blue-500 text-lg font-bold ml-2">
+              <Ionicons name="enter" size={24} color="white" />
+              <Text className="text-white text-lg font-bold ml-2">
                 Join Existing Pool
               </Text>
             </View>
@@ -216,6 +235,7 @@ export default function PoolSelectionScreen() {
           </BottomSheetView>
         </BottomSheet>
       </SafeAreaView>
+      </LinearGradient>
     );
   }
 

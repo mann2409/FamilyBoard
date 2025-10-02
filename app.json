@@ -9,7 +9,11 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mann2409.familyboard"
+      "bundleIdentifier": "com.mann2409.familyboard",
+      "infoPlist": {
+        "NSCalendarsUsageDescription": "FamilyBoard needs access to your calendar to create events for tasks you claim.",
+        "NSCalendarsWriteOnlyAccessUsageDescription": "FamilyBoard needs permission to add events to your calendar when you claim tasks."
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true,

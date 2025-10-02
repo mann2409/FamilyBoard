@@ -48,10 +48,16 @@ export default function ActivityScreen() {
   }, []);
 
   const { upcomingRequests, completedRequests, myRequests } = useMemo(() => {
+    // Upcoming: Future requests that I've claimed (my active work)
     const upcoming = requests
-      .filter((r) => r.status !== "completed" && isFuture(new Date(r.dateTime)))
+      .filter((r) => 
+        r.status === "claimed" && 
+        r.claimedBy?.id === currentUser?.id &&
+        isFuture(new Date(r.dateTime))
+      )
       .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
     
+    // Completed: All completed requests
     const completed = requests
       .filter((r) => r.status === "completed")
       .sort((a, b) => {
@@ -60,10 +66,12 @@ export default function ActivityScreen() {
         return bTime - aTime;
       });
     
+    // My Requests: Requests I posted (excluding completed and upcoming claimed)
     const mine = requests
       .filter((r) => 
-        r.postedBy.id === currentUser?.id || 
-        r.claimedBy?.id === currentUser?.id
+        r.postedBy.id === currentUser?.id &&
+        r.status !== "completed" &&
+        !(r.claimedBy?.id === currentUser?.id && isFuture(new Date(r.dateTime)))
       )
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -168,7 +176,7 @@ export default function ActivityScreen() {
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-lg font-semibold text-gray-800">
-                Upcoming Requests
+                Upcoming Jobs
               </Text>
               <View className="bg-blue-100 px-2 py-1 rounded-full">
                 <Text className="text-sm font-semibold text-blue-600">
@@ -181,7 +189,7 @@ export default function ActivityScreen() {
               <View className="bg-white rounded-xl p-6 items-center border" style={{ borderColor: "#E5E7EB" }}>
                 <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
                 <Text className="text-gray-500 mt-2 text-center">
-                  No upcoming requests
+                  No upcoming jobs you've claimed
                 </Text>
               </View>
             ) : (
@@ -193,7 +201,7 @@ export default function ActivityScreen() {
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-lg font-semibold text-gray-800">
-                My Requests
+                My Posted Requests
               </Text>
               <View className="bg-purple-100 px-2 py-1 rounded-full">
                 <Text className="text-sm font-semibold text-purple-600">
@@ -206,7 +214,7 @@ export default function ActivityScreen() {
               <View className="bg-white rounded-xl p-6 items-center border" style={{ borderColor: "#E5E7EB" }}>
                 <Ionicons name="person-outline" size={48} color="#9CA3AF" />
                 <Text className="text-gray-500 mt-2 text-center">
-                  No requests posted or claimed by you
+                  No active requests posted by you
                 </Text>
               </View>
             ) : (

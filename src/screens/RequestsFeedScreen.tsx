@@ -7,6 +7,7 @@ import {
   RefreshControl,
   TextInput,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -138,27 +139,32 @@ export default function RequestsFeedScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       {/* Header */}
-      <View className="bg-white px-4 py-3 border-b" style={{ borderColor: "#E5E7EB" }}>
+      <LinearGradient
+        colors={['#667eea', '#764ba2']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        className="px-4 py-3"
+      >
         <View className="flex-row items-center justify-between mb-3">
-          <Text className="text-2xl font-bold text-gray-800">
+          <Text className="text-2xl font-bold text-white">
             Requests Feed
           </Text>
           {currentPool && <PoolSwitcher />}
         </View>
 
         {/* Search Bar */}
-        <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3 mb-3">
-          <Ionicons name="search" size={20} color="#6B7280" />
+        <View className="flex-row items-center bg-white/20 rounded-xl px-4 py-3 mb-3">
+          <Ionicons name="search" size={20} color="white" />
           <TextInput
-            className="flex-1 ml-2 text-base text-gray-800"
+            className="flex-1 ml-2 text-base text-white"
             placeholder="Search requests..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="rgba(255,255,255,0.7)"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={20} color="#6B7280" />
+              <Ionicons name="close-circle" size={20} color="white" />
             </Pressable>
           )}
         </View>
@@ -175,18 +181,18 @@ export default function RequestsFeedScreen() {
               onPress={() => setActiveTab(tab.id)}
               className={`mr-2 px-4 py-2.5 rounded-xl flex-row items-center ${
                 activeTab === tab.id
-                  ? "bg-blue-500"
-                  : "bg-gray-100"
+                  ? "bg-white"
+                  : "bg-white/20"
               }`}
             >
               <Ionicons
                 name={tab.icon}
                 size={18}
-                color={activeTab === tab.id ? "white" : "#6B7280"}
+                color={activeTab === tab.id ? "#667eea" : "white"}
               />
               <Text
                 className={`ml-2 font-semibold ${
-                  activeTab === tab.id ? "text-white" : "text-gray-700"
+                  activeTab === tab.id ? "text-gray-800" : "text-white"
                 }`}
               >
                 {tab.label}
@@ -194,12 +200,12 @@ export default function RequestsFeedScreen() {
               {tab.count > 0 && (
                 <View
                   className={`ml-2 px-2 py-0.5 rounded-full ${
-                    activeTab === tab.id ? "bg-white" : "bg-blue-500"
+                    activeTab === tab.id ? "bg-purple-600" : "bg-white/20"
                   }`}
                 >
                   <Text
                     className={`text-xs font-bold ${
-                      activeTab === tab.id ? "text-blue-500" : "text-white"
+                      activeTab === tab.id ? "text-white" : "text-white"
                     }`}
                   >
                     {tab.count}
@@ -209,7 +215,7 @@ export default function RequestsFeedScreen() {
             </Pressable>
           ))}
         </ScrollView>
-      </View>
+      </LinearGradient>
 
       {/* Filter Bar */}
       <FilterSortBar

@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../state/authStore";
@@ -52,26 +53,54 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            className="flex-1"
-            contentContainerClassName="flex-grow justify-center px-6"
-            keyboardShouldPersistTaps="handled"
-          >
-            <View className="items-center mb-12">
-              <View className="w-20 h-20 bg-blue-500 rounded-full items-center justify-center mb-4">
-                <Ionicons name="people" size={40} color="white" />
-              </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView
+              className="flex-1"
+              contentContainerClassName="flex-grow justify-center px-6"
+              keyboardShouldPersistTaps="handled"
+            >
+              <View className="items-center mb-12">
+                <View className="w-24 h-24 bg-blue-500 rounded-full items-center justify-center mb-4">
+                  <Ionicons name="people" size={48} color="white" />
+                </View>
               <Text className="text-3xl font-bold text-gray-800">
-                Family Helper Board
+                Welcome to FamilyBoard
               </Text>
-              <Text className="text-base text-gray-500 mt-2">
-                Stay connected with your family
+              <Text className="text-base text-gray-500 mt-2 text-center px-4">
+                Coordinate tasks and stay organized with your family or group
               </Text>
+              
+              {/* Features */}
+              <View className="mt-8 w-full">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
+                    <Ionicons name="checkmark-circle" size={20} color="#3B82F6" />
+                  </View>
+                  <Text className="text-sm text-gray-600 flex-1">
+                    Share and claim family requests
+                  </Text>
+                </View>
+                <View className="flex-row items-center mb-3">
+                  <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
+                    <Ionicons name="checkmark-circle" size={20} color="#3B82F6" />
+                  </View>
+                  <Text className="text-sm text-gray-600 flex-1">
+                    Track tasks on a shared calendar
+                  </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <View className="w-8 h-8 bg-blue-100 rounded-full items-center justify-center mr-3">
+                    <Ionicons name="checkmark-circle" size={20} color="#3B82F6" />
+                  </View>
+                  <Text className="text-sm text-gray-600 flex-1">
+                    Join multiple pools (family, friends, etc.)
+                  </Text>
+                </View>
+              </View>
             </View>
 
             <View className="w-full">

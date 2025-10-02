@@ -15,6 +15,7 @@ import ActivityScreen from "../screens/ActivityScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import NewRequestScreen from "../screens/NewRequestScreen";
 import RequestDetailScreen from "../screens/RequestDetailScreen";
+import LeaderboardScreen from "../screens/LeaderboardScreen";
 
 // Utils
 import { registerForPushNotificationsAsync, setupNotificationListeners } from "../utils/notifications";
@@ -161,6 +162,13 @@ export default function RootNavigator() {
               component={RequestDetailScreen}
               options={{
                 title: "Request Details",
+              }}
+            />
+            <Stack.Screen
+              name="Leaderboard"
+              component={LeaderboardScreen}
+              options={{
+                title: "Leaderboard",
               }}
             />
           </>

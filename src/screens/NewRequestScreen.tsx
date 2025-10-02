@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuthStore } from "../state/authStore";
 import { useRequestsStore } from "../state/requestsStore";
+import { usePoolStore } from "../state/poolStore";
 import { FamilyRequest, RequestType } from "../types/family";
 import * as ExpoNotifications from "expo-notifications";
 
@@ -38,10 +39,13 @@ export default function NewRequestScreen() {
   const navigation = useNavigation<NavigationProp>();
   const currentUser = useAuthStore((s) => s.currentUser);
   const addRequest = useRequestsStore((s) => s.addRequest);
+  const currentPoolId = usePoolStore((s) => s.currentPoolId);
 
   const [selectedType, setSelectedType] = useState<RequestType>("babysitting");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [reward, setReward] = useState("");
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -58,6 +62,11 @@ export default function NewRequestScreen() {
 
     if (!currentUser) {
       setError("You must be logged in to create a request");
+      return;
+    }
+
+    if (!currentPoolId) {
+      setError("No pool selected. Please select a pool first.");
       return;
     }
 
@@ -78,9 +87,12 @@ export default function NewRequestScreen() {
 
     const newRequest: FamilyRequest = {
       id: Date.now().toString(),
+      poolId: currentPoolId,
       type: selectedType,
       title: title.trim(),
       description: description.trim() || undefined,
+      location: location.trim() || undefined,
+      reward: reward.trim() || undefined,
       dateTime: combinedDateTime.toISOString(),
       postedBy: currentUser,
       status: "open",
@@ -232,6 +244,30 @@ export default function NewRequestScreen() {
                   }}
                 />
               )}
+
+              {/* Location */}
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Location (Optional)
+              </Text>
+              <TextInput
+                value={location}
+                onChangeText={setLocation}
+                placeholder="e.g., Home, School, Park..."
+                placeholderTextColor="#9CA3AF"
+                className="w-full px-4 py-3.5 bg-gray-50 rounded-xl text-base text-gray-800 mb-4"
+              />
+
+              {/* Reward */}
+              <Text className="text-sm font-semibold text-gray-700 mb-2">
+                Reward (Optional)
+              </Text>
+              <TextInput
+                value={reward}
+                onChangeText={setReward}
+                placeholder="e.g., $20, Pizza dinner..."
+                placeholderTextColor="#9CA3AF"
+                className="w-full px-4 py-3.5 bg-gray-50 rounded-xl text-base text-gray-800 mb-4"
+              />
 
               {/* Description */}
               <Text className="text-sm font-semibold text-gray-700 mb-2">
