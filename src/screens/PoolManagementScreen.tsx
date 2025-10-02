@@ -266,8 +266,8 @@ export default function PoolManagementScreen() {
             )}
           </View>
         </View>
-      </Modal>
-    </>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
